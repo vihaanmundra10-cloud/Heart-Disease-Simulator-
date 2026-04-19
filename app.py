@@ -63,66 +63,83 @@ df = df.drop_duplicates()
 
 ### AGE ANALYSIS
 
-young = (df['age'] < 40).sum()
-middle = ((df['age'] >= 40) & (df['age'] < 60)).sum()
-old = (df['age'] >= 60).sum()
+# young = (df['age'] < 40).sum()
+# middle = ((df['age'] >= 40) & (df['age'] < 60)).sum()
+# old = (df['age'] >= 60).sum()
 
 
 
 
-total = young + middle + old
-st.write("This is the the people broken down ")
+# total = young + middle + old
+# st.write("This is the the people broken down ")
 
-st.write("Young (<40):", young / total * 100)
-st.write("Middle (40-60):", middle / total * 100)
-st.write("Old(>60):", old / total * 100)
+# st.write("Young (<40):", young / total * 100)
+# st.write("Middle (40-60):", middle / total * 100)
+# st.write("Old(>60):", old / total * 100)
 
-st.write("\n\n\n\n\n\n\n")
+# st.write("\n\n\n\n\n\n\n")
 
-#checking which people had heart disease
+# #checking which people had heart disease
 
-def young_people_with_heart_disease(dataframe):
-    y = 0
-    young_people = dataframe[dataframe['age'] < 40]
-    young_hd = young_people[young_people['target'] >= 1]
-    y+= len(young_hd)
-    st.write(y/young *100, "% of young people have heart disease")
-
-
-def middle_people_with_heart_disease(dataframe):
-    m = 0
-    middle_people = dataframe[(dataframe['age'] >= 40) & (dataframe['age'] < 60)]
-    middle_hd = middle_people[middle_people['target'] >=1]
-    m += len(middle_hd)
-    st.write(m/middle *100, "% of middle-aged people have heart disease")
+# def young_people_with_heart_disease(dataframe):
+#     y = 0
+#     young_people = dataframe[dataframe['age'] < 40]
+#     young_hd = young_people[young_people['target'] >= 1]
+#     y+= len(young_hd)
+#     st.write(y/young *100, "% of young people have heart disease")
 
 
-def old_people_with_heart_disease(dataframe):
-    o = 0
-    old_people = dataframe[dataframe['age'] >= 60]
-    old_hd = old_people[old_people['target'] >= 1]
-    o += len(old_hd)
-    st.write(o/old *100, "% of old people have heart disease")
+# def middle_people_with_heart_disease(dataframe):
+#     m = 0
+#     middle_people = dataframe[(dataframe['age'] >= 40) & (dataframe['age'] < 60)]
+#     middle_hd = middle_people[middle_people['target'] >=1]
+#     m += len(middle_hd)
+#     st.write(m/middle *100, "% of middle-aged people have heart disease")
 
 
-st.write('Heart diease analysis with age:')
-old_people_with_heart_disease(df)
-middle_people_with_heart_disease(df)
-young_people_with_heart_disease(df)
-
-#average age of heart disease patients
-
-st.write("Average age of people with heart disease:", df.loc[df['target']>=1, 'age'].mean())
-
-st.write("\n\n\n\n\n\n\n")
-st.write("\n\n\n\n\n\n\n")
-st.write("\n\n\n\n\n\n\n")
+# def old_people_with_heart_disease(dataframe):
+#     o = 0
+#     old_people = dataframe[dataframe['age'] >= 60]
+#     old_hd = old_people[old_people['target'] >= 1]
+#     o += len(old_hd)
+#     st.write(o/old *100, "% of old people have heart disease")
 
 
+# st.write('Heart diease analysis with age:')
+# old_people_with_heart_disease(df)
+# middle_people_with_heart_disease(df)
+# young_people_with_heart_disease(df)
 
-#Conclusions: As evident, the percentage of people with heart disease increases with age. This is consistent with the fact that heart disease is more common in older people. However, it is also important to note that there are still a significant number of young people with heart disease, which is concerning and highlights the importance of early detection and prevention.
+# #average age of heart disease patients
+
+# st.write("Average age of people with heart disease:", df.loc[df['target']>=1, 'age'].mean())
+
+# st.write("\n\n\n\n\n\n\n")
+# st.write("\n\n\n\n\n\n\n")
+# st.write("\n\n\n\n\n\n\n")
 
 
+
+# #Conclusions: As evident, the percentage of people with heart disease increases with age. This is consistent with the fact that heart disease is more common in older people. However, it is also important to note that there are still a significant number of young people with heart disease, which is concerning and highlights the importance of early detection and prevention.
+
+### AGE ANALYSIS
+age = df.loc[df["target"] >= 1, "age"]
+
+age_with_heart_disease = len(age)
+
+st.write("Mean age with Heart Disease: ", age.mean())
+
+young = st.write("Percentage of people with heart disease under 40: ",
+      (age < 40).sum() / age_with_heart_disease *100) 
+y = age[age < 40]
+
+middle = st.write("Percentage of people with heart disease between 40-60: ",
+      ((age >= 40) & (age < 60)).sum() / age_with_heart_disease *100) 
+m = age[(age >= 40) & (age < 60)]
+
+old = st.write("Percentage of people with heart disease between >60: ",
+      (age>60).sum() / age_with_heart_disease * 100) 
+o = age[age >= 60]
 
 
 #ANALYZING CHOLESTROL LEVELS 
@@ -350,25 +367,32 @@ def heart_disease_risk(age, chol, thalach):
 
     score = 0
 
-    # age contribution
-    if age > 60:
-        score += 2
-    elif age > 40:
-        score += 1
+    # age contribution (375)
+    if age >= 60:
+        score +=  200
+    elif (age >= 40) and (age < 60) :
+        score += 125
     elif age < 40:
-        score += 0
+        score += 50
 
-    # cholesterol contribution
-    if chol > 240:
-        score += 2
-    elif chol >=200:
-        score += 1
+    # cholesterol contribution (80)
+    if chol >= 240:
+        score += 50
+    elif (chol >=200) and (chol<240):
+        score += 25
+    elif chol <200:
+        score += 5
 
-    # heart rate contribution (lower is higher risk)
-    if thalach < 130:
-        score += 2
-    elif thalach < 160:
-        score += 1
+    # heart rate contribution (lower is higher risk) (1000pt)
+    if thalach >= 170:
+        score += 100
+    elif (thalach >= 150) and (thalach <170) :
+        score += 200
+    elif (thalach >= 130) and (thalach < 150):
+        score +=300
+    elif thalach <130:
+        score+=400
+    
 
     risk_percent = (score / 6) * 100
 
