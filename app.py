@@ -394,7 +394,7 @@ def heart_disease_risk(age, chol, thalach):
         score+=400
     
 
-    risk_percent = (score / 6) * 100
+    risk_percent = (score / 1455) * 100
 
     st.write(risk_percent)
 
