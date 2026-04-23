@@ -5,33 +5,57 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+st.set_page_config(
+    page_title="Heart Disease Simulator",
+    page_icon="❤️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 st.markdown(
     """
     <style>
     .main {
-        background-color: #f7f9fc;
+        background: linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
     }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
     .app-title {
-        font-size: 44px;
+        font-size: 3rem;
         font-weight: 800;
         color: #b22234;
         text-align: center;
-        margin-bottom: 0px;
+        margin-bottom: 0.15rem;
     }
+
     .app-subtitle {
-        font-size: 18px;
-        color: #444444;
+        font-size: 1.05rem;
+        color: #5a5a5a;
         text-align: center;
-        margin-top: 0px;
-        margin-bottom: 20px;
+        margin-bottom: 1.3rem;
     }
-    .section-box {
+
+    .card {
         background: white;
-        padding: 18px 20px;
-        border-radius: 16px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        margin-bottom: 18px;
-        border-left: 6px solid #b22234;
+        padding: 1.1rem 1.2rem;
+        border-radius: 18px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.35rem;
+    }
+
+    .small-note {
+        color: #6b7280;
+        font-size: 0.92rem;
     }
     </style>
 
@@ -94,6 +118,11 @@ df = df.apply(pd.to_numeric)
 # Remove duplicates
 df = df.drop_duplicates()
 
+st.sidebar.markdown("## Patient Inputs")
+st.sidebar.write("This app explores three factors:")
+st.sidebar.write("- Age")
+st.sidebar.write("- Cholesterol")
+st.sidebar.write("- Maximum heart rate")
 
 ### AGE ANALYSIS
 
@@ -247,9 +276,9 @@ max_heart_rate_analysis()
 
 
 
- # did not make these by myself, just exploring options and learning
+ 
 
-
+tab1, tab2, tab3, tab4 = st.tabs(["Summary", "Age", "Cholesterol", "Heart Rate"])
 
 # =========================
 # GRAPH 1: AGE DISTRIBUTION
