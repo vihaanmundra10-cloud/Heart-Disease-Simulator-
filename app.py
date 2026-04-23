@@ -5,7 +5,41 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #f7f9fc;
+    }
+    .app-title {
+        font-size: 44px;
+        font-weight: 800;
+        color: #b22234;
+        text-align: center;
+        margin-bottom: 0px;
+    }
+    .app-subtitle {
+        font-size: 18px;
+        color: #444444;
+        text-align: center;
+        margin-top: 0px;
+        margin-bottom: 20px;
+    }
+    .section-box {
+        background: white;
+        padding: 18px 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-bottom: 18px;
+        border-left: 6px solid #b22234;
+    }
+    </style>
 
+    <div class="app-title">Heart Disease Simulator</div>
+    <div class="app-subtitle">Exploring age, cholesterol, and maximum heart rate with Streamlit</div>
+    """,
+    unsafe_allow_html=True
+)
 
 #Read the CSV file and create a DataFrame
 
