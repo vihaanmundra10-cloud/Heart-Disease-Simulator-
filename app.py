@@ -100,7 +100,7 @@ df.columns = ["age",
  #0 = no heart disease, 1 = heart disease, 3, 4 = severity of heart disease
  ]
 st.write("\n\n\n\n\n\n\n")
-st.write("This is the data:")
+st.write("This is the data I analyzed to get conclusions and make a fundemental simulator based of age, cholestrol level, and maximum heart level during a cardiac stress test. (Source: https://archive.ics.uci.edu/dataset/45/heart+disease)")
 st.write("\n\n\n\n\n\n\n")
 st.write(df)
 st.write("\n\n\n\n\n\n\n")
@@ -186,6 +186,7 @@ st.sidebar.write("- Maximum heart rate")
 # #Conclusions: As evident, the percentage of people with heart disease increases with age. This is consistent with the fact that heart disease is more common in older people. However, it is also important to note that there are still a significant number of young people with heart disease, which is concerning and highlights the importance of early detection and prevention.
 
 ### AGE ANALYSIS
+st.write("The following is the Age Analysis of the dataset with the following tables related to the Age Analysis")
 age = df.loc[df["target"] >= 1, "age"]
 
 age_with_heart_disease = len(age)
@@ -206,7 +207,7 @@ o = age[age >= 60]
 
 
 #ANALYZING CHOLESTROL LEVELS 
-st.write('Cholestrol DATA')
+st.write('Cholestrol Data and Analysis')
 st.write(df[['chol', 'target']])
 
 #people with high cholesterol levels (greater than 240) and how many of them have heart disease (target >= 1)
@@ -253,16 +254,16 @@ def max_heart_rate_analysis():
 
     st.write(df.loc[df['target'] >= 1, 'thalach'])
 
-    st.write("Mean maximum heart rate for people with heart disease:", df.loc[df['target'] >= 1, 'thalach'].mean())
+    st.write("Mean maximum heart rate for people during a cardiac stress test with heart disease:", df.loc[df['target'] >= 1, 'thalach'].mean())
 
 
 #factoring for severity of heart disease (target = 1 or 2); low severity 
 
-    st.write (df.loc[df['target'] >= 3, 'thalach'].mean(), "is the mean maximum heart rate for people with severe heart disease")
+    st.write (df.loc[df['target'] >= 3, 'thalach'].mean(), "is the mean maximum heart rate during a cardiac stress test for people with severe heart disease")
 
 #factoring for severity of heart disease (target = 3 or 4)
 
-    st.write (df.loc[df['target'].isin([1, 2]), 'thalach'].mean(), "is the mean maximum heart rate for people with less severe heart disease")
+    st.write (df.loc[df['target'].isin([1, 2]), 'thalach'].mean(), "is the mean maximum heart rate during a cardiac stresst test for people with less severe heart disease")
 
 
 
@@ -464,6 +465,6 @@ def heart_disease_risk(age, chol, thalach):
 
 simulation_age = st.number_input('What is your age?', min_value=0, max_value=120, value=50)
 simulation_cholestrol = st.number_input("What is your cholestrol?", min_value=0, max_value=1000, value=200)
-simulation_heart_rate = st.number_input("What is your heart rate?", min_value=0, max_value=250, value=150)
+simulation_heart_rate = st.number_input("What is your max heart rate during a cardiac stress test?", min_value=0, max_value=250, value=150)
 
 heart_disease_risk(simulation_age, simulation_cholestrol, simulation_heart_rate)
