@@ -5,65 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-st.set_page_config(
-    page_title="Heart Disease Simulator",
-    page_icon="❤️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-st.markdown(
-    """
-    <style>
-    .main {
-        background: linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
-    }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    .app-title {
-        font-size: 3rem;
-        font-weight: 800;
-        color: #b22234;
-        text-align: center;
-        margin-bottom: 0.15rem;
-    }
-
-    .app-subtitle {
-        font-size: 1.05rem;
-        color: #5a5a5a;
-        text-align: center;
-        margin-bottom: 1.3rem;
-    }
-
-    .card {
-        background: white;
-        padding: 1.1rem 1.2rem;
-        border-radius: 18px;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-        border: 1px solid rgba(15, 23, 42, 0.06);
-        margin-bottom: 1rem;
-    }
-
-    .section-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.35rem;
-    }
-
-    .small-note {
-        color: #6b7280;
-        font-size: 0.92rem;
-    }
-    </style>
-
-    <div class="app-title">Heart Disease Simulator</div>
-    <div class="app-subtitle">Exploring age, cholesterol, and maximum heart rate with Streamlit</div>
-    """,
-    unsafe_allow_html=True
-)
 
 #Read the CSV file and create a DataFrame
 
@@ -118,11 +60,6 @@ df = df.apply(pd.to_numeric)
 # Remove duplicates
 df = df.drop_duplicates()
 
-st.sidebar.markdown("## Patient Inputs")
-st.sidebar.write("This app explores three factors:")
-st.sidebar.write("- Age")
-st.sidebar.write("- Cholesterol")
-st.sidebar.write("- Maximum heart rate")
 
 ### AGE ANALYSIS
 
@@ -281,9 +218,9 @@ max_heart_rate_analysis()
 
 tab1, tab2, tab3, tab4 = st.tabs(["Summary", "Age", "Cholesterol", "Heart Rate"])
 
-# =========================
-# GRAPH 1: AGE DISTRIBUTION
-# =========================
+
+# age
+
 
 young = df[df['age'] < 40]
 middle = df[(df['age'] >= 40) & (df['age'] < 60)]
@@ -298,9 +235,7 @@ plt.title("Age Distribution (%)")
 plt.ylabel("Percentage")
 st.pyplot()
 
-# =========================
-# GRAPH 2: HEART DISEASE BY AGE
-# =========================
+#heart disease by age
 
 plt.figure()
 plt.bar(age_labels, [
@@ -312,9 +247,7 @@ plt.title("Heart Disease % by Age Group")
 plt.ylabel("% with Heart Disease")
 st.pyplot()
 
-# =========================
-# GRAPH 3: CHOLESTEROL ANALYSIS
-# =========================
+# cholestrol
 
 low = df[df['chol'] < 200]
 medium = df[(df['chol'] >= 200) & (df['chol'] <= 239)]
@@ -333,99 +266,7 @@ st.pyplot()
 st.write("Average cholesterol (heart disease patients):",
       df[df['target'] >= 1]['chol'].mean())
 
-# =========================
-# GRAPH 4: MAX HEART RATE ANALYSIS
-# =========================
 
-plt.figure()
-plt.bar(
-    ["All HD", "Severe", "Less Severe"],
-    [
-        df[df['target'] >= 1]['thalach'].mean(),
-        df[df['target'] >= 3]['thalach'].mean(),
-        df[df['target'].isin([1, 2])]['thalach'].mean()
-    ]
-)
-plt.title("Max Heart Rate vs Severity")
-plt.ylabel("Average Thalach")
-st.pyplot()
-
-# =========================
-# GRAPH 5: AGE VS CHOLESTEROL (SCATTER)
-# =========================
-
-plt.figure()
-plt.scatter(df['age'], df['chol'], alpha=0.5)
-plt.title("Age vs Cholesterol")
-plt.xlabel("Age")
-plt.ylabel("Cholesterol")
-st.pyplot()
-
-# =========================
-# GRAPH 6: STACKED BAR (HD vs NO HD)
-# =========================
-
-age_groups = ["Young", "Middle", "Old"]
-
-hd = [
-    len(young[young['target'] >= 1]),
-    len(middle[middle['target'] >= 1]),
-    len(old[old['target'] >= 1])
-]
-
-no_hd = [
-    len(young[young['target'] == 0]),
-    len(middle[middle['target'] == 0]),
-    len(old[old['target'] == 0])
-]
-
-plt.figure()
-plt.bar(age_groups, hd, label="Heart Disease")
-plt.bar(age_groups, no_hd, bottom=hd, label="No Heart Disease")
-plt.title("Heart Disease Distribution by Age")
-plt.legend()
-st.pyplot()
-
-# =========================
-# GRAPH 7: BOX PLOT (CHOLESTEROL)
-# =========================
-
-plt.figure()
-plt.boxplot([
-    df[df['target'] == 0]['chol'],
-    df[df['target'] >= 1]['chol']
-], tick_labels=["No Disease", "Disease"])
-
-plt.title("Cholesterol Distribution")
-st.pyplot()
-
-# =========================
-# GRAPH 8: BOX PLOT (THALACH)
-# =========================
-
-plt.figure()
-plt.boxplot([
-    df[df['target'] == 0]['thalach'],
-    df[df['target'].isin([1, 2])]['thalach'],
-    df[df['target'] >= 3]['thalach']
-], tick_labels=["None", "Mild", "Severe"])
-
-plt.title("Max Heart Rate by Severity")
-st.pyplot()
-
-# =========================
-# GRAPH 9: CORRELATION HEATMAP
-# =========================
-
-plt.figure(figsize=(10, 6))
-sns.heatmap(df.corr(numeric_only=True), cmap="coolwarm")
-plt.title("Correlation Heatmap")
-st.pyplot()
-
-
-# =========================
-# SIMULATION: HEART DISEASE RISK MODEL
-# =========================
 
 def heart_disease_risk(age, chol, thalach):
 
