@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-
+st.html("<h1>Fundamental Heart Disease Simulator and Analysis</h1>")
 
 #Read the CSV file and create a DataFrame
 
