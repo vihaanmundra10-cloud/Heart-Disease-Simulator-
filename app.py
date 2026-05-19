@@ -6,6 +6,7 @@ import seaborn as sns
 import streamlit as st
 
 st.html("<h1>Fundamental Heart Disease Simulator and Analysis</h1>")
+st.html("<h3>Vihaan Mundra</h3>")
 
 #Read the CSV file and create a DataFrame
 
