@@ -715,46 +715,171 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Extra CSS for simulator groups
+st.markdown("""
+<style>
+.input-group-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 1.4rem 0 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+}
+.factor-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.factor-row:last-child { border-bottom: none; }
+.factor-name  { font-size: 0.82rem; color: var(--label); flex: 1; }
+.factor-val   { font-size: 0.82rem; font-weight: 600; color: var(--text); width: 60px; text-align: right; }
+.factor-bar-wrap { width: 110px; background: var(--surface2); border-radius: 3px; height: 6px; }
+.factor-bar   { height: 6px; border-radius: 3px; }
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("""
 <div class="sim-card">
 <div class="sim-title">Personal Risk Estimator</div>
 <div class="sim-desc">
-    Enter your values below. The simulator uses scoring weights derived from the 
-    Cleveland dataset's observed HD rates across age, cholesterol, and peak cardiac heart rate bands.
+    Fill in your clinical values across the three groups below. Each factor is weighted 
+    from observed heart disease rates in the Cleveland dataset.
 </div>
 """, unsafe_allow_html=True)
 
-c1, c2, c3 = st.columns(3)
-with c1:
-    sim_age  = st.number_input("Age", min_value=0, max_value=120, value=50)
-with c2:
+# ── Group 1: Demographics ──
+st.markdown('<div class="input-group-label">Demographics</div>', unsafe_allow_html=True)
+col1, col2 = st.columns(2)
+with col1:
+    sim_age = st.number_input("Age", min_value=0, max_value=120, value=50)
+with col2:
+    sim_sex = st.selectbox("Sex", options=["Male", "Female"])
+
+# ── Group 2: Lab Values ──
+st.markdown('<div class="input-group-label">Lab Values</div>', unsafe_allow_html=True)
+col1, col2, col3 = st.columns(3)
+with col1:
     sim_chol = st.number_input("Cholesterol (mg/dL)", min_value=0, max_value=1000, value=200)
-with c3:
-    sim_hr   = st.number_input("Peak stress-test heart rate (bpm)", min_value=0, max_value=250, value=150)
+with col2:
+    sim_bp   = st.number_input("Resting blood pressure (mmHg)", min_value=0, max_value=250, value=120)
+with col3:
+    sim_fbs  = st.selectbox("Fasting blood sugar > 120 mg/dL?", options=["No", "Yes"])
 
-def heart_disease_risk(age, chol, thalach):
+# ── Group 3: Cardiac Test Results ──
+st.markdown('<div class="input-group-label">Cardiac Test Results</div>', unsafe_allow_html=True)
+col1, col2, col3 = st.columns(3)
+with col1:
+    sim_hr = st.number_input("Peak stress-test heart rate (bpm)", min_value=0, max_value=250, value=150)
+with col2:
+    sim_exang = st.selectbox("Exercise-induced chest pain (angina)?", options=["No", "Yes"])
+with col3:
+    sim_oldpeak = st.number_input("ST depression (oldpeak)", min_value=0.0, max_value=10.0,
+                                   value=1.0, step=0.1,
+                                   help="ST segment depression induced by exercise vs. rest. 0 = none.")
+col1, col2 = st.columns(2)
+with col1:
+    sim_cp = st.selectbox(
+        "Chest pain type",
+        options=[
+            "Typical angina (most concerning)",
+            "Atypical angina",
+            "Non-anginal pain",
+            "Asymptomatic (no chest pain)",
+        ]
+    )
+
+# ── Scoring function ──
+def heart_disease_risk(age, sex, chol, bp, fbs, hr, exang, oldpeak, cp):
     score = 0
-    if age >= 60:         score += 200
-    elif age >= 40:       score += 125
-    else:                 score += 50
-    if chol >= 240:       score += 50
-    elif chol >= 200:     score += 25
-    else:                 score += 5
-    if thalach >= 170:    score += 100
-    elif thalach >= 150:  score += 200
-    elif thalach >= 130:  score += 300
-    else:                 score += 400
-    return (score / 750) * 100
+    max_score = 0
 
-risk_pct = heart_disease_risk(sim_age, sim_chol, sim_hr)
+    # Age (weight: 200)
+    max_score += 200
+    if age >= 60:    score += 200
+    elif age >= 40:  score += 125
+    else:            score += 50
 
-if risk_pct < 40:
-    tier_cls, tier_label, color = "tier-low",    "Low Risk",    "#2DD4BF"
-elif risk_pct < 65:
+    # Sex (weight: 80) — males have ~2× HD rate in this dataset
+    max_score += 80
+    if sex == "Male": score += 80
+    else:             score += 25
+
+    # Cholesterol (weight: 60)
+    max_score += 60
+    if chol >= 240:        score += 60
+    elif chol >= 200:      score += 35
+    else:                  score += 10
+
+    # Resting BP (weight: 70)
+    max_score += 70
+    if bp >= 140:          score += 70
+    elif bp >= 120:        score += 40
+    else:                  score += 10
+
+    # Fasting blood sugar (weight: 40)
+    max_score += 40
+    if fbs == "Yes":       score += 40
+    else:                  score += 10
+
+    # Peak heart rate (weight: 250) — strongest numerical predictor
+    max_score += 250
+    if hr >= 170:          score += 50
+    elif hr >= 150:        score += 120
+    elif hr >= 130:        score += 185
+    else:                  score += 250
+
+    # Exercise-induced angina (weight: 150)
+    max_score += 150
+    if exang == "Yes":     score += 150
+    else:                  score += 20
+
+    # ST depression / oldpeak (weight: 180)
+    max_score += 180
+    if oldpeak >= 3.0:     score += 180
+    elif oldpeak >= 1.5:   score += 120
+    elif oldpeak >= 0.5:   score += 60
+    else:                  score += 10
+
+    # Chest pain type (weight: 120)
+    max_score += 120
+    cp_map = {
+        "Typical angina (most concerning)": 120,
+        "Atypical angina":                   70,
+        "Non-anginal pain":                  35,
+        "Asymptomatic (no chest pain)":      10,
+    }
+    score += cp_map.get(cp, 10)
+
+    return (score / max_score) * 100, {
+        "Age":               (score if age >= 60 else (125 if age >= 40 else 50), 200),
+        "Sex":               (80 if sex == "Male" else 25, 80),
+        "Cholesterol":       (60 if chol >= 240 else (35 if chol >= 200 else 10), 60),
+        "Blood Pressure":    (70 if bp >= 140 else (40 if bp >= 120 else 10), 70),
+        "Fasting Blood Sugar": (40 if fbs == "Yes" else 10, 40),
+        "Peak Heart Rate":   (250 if hr < 130 else (185 if hr < 150 else (120 if hr < 170 else 50)), 250),
+        "Exercise Angina":   (150 if exang == "Yes" else 20, 150),
+        "ST Depression":     (180 if oldpeak >= 3 else (120 if oldpeak >= 1.5 else (60 if oldpeak >= 0.5 else 10)), 180),
+        "Chest Pain Type":   (cp_map.get(cp, 10), 120),
+    }
+
+risk_pct, factor_scores = heart_disease_risk(
+    sim_age, sim_sex, sim_chol, sim_bp, sim_fbs,
+    sim_hr, sim_exang, sim_oldpeak, sim_cp
+)
+
+if risk_pct < 35:
+    tier_cls, tier_label, color = "tier-low",    "Low Risk",      "#2DD4BF"
+elif risk_pct < 60:
     tier_cls, tier_label, color = "tier-medium", "Moderate Risk", "#F6AD55"
 else:
     tier_cls, tier_label, color = "tier-high",   "Elevated Risk", "#FC8181"
 
+# ── Result display ──
 st.markdown(f"""
 <div class="risk-result">
     <div class="risk-result-pct" style="color:{color}">{risk_pct:.1f}%</div>
@@ -763,11 +888,29 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# ── Factor breakdown ──
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown('<div class="input-group-label">Score Breakdown by Factor</div>', unsafe_allow_html=True)
+
+rows_html = ""
+for name, (val, max_val) in factor_scores.items():
+    pct = val / max_val * 100
+    bar_color = "#E53E3E" if pct >= 70 else ("#F6AD55" if pct >= 40 else "#2DD4BF")
+    rows_html += f"""
+    <div class="factor-row">
+        <div class="factor-name">{name}</div>
+        <div class="factor-bar-wrap">
+            <div class="factor-bar" style="width:{pct:.0f}%;background:{bar_color};"></div>
+        </div>
+        <div class="factor-val" style="color:{bar_color}">{pct:.0f}%</div>
+    </div>"""
+
+st.markdown(rows_html, unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)  # close sim-card
 
 st.markdown("""
 <div class="caution">
-    <strong>⚠ Educational use only.</strong> This simulator is a simplified scoring model built 
+    <strong>⚠ Educational use only.</strong> This simulator is a heuristic scoring model built 
     from a 303-patient dataset for academic purposes. It is not a clinical diagnostic tool and 
     should not replace advice from a qualified healthcare professional.
 </div>
